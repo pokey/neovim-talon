@@ -1,6 +1,7 @@
-from talon import Context, actions
+from talon import Context, Module, actions
 
 # TODO: should we also match tag: user.tabs or tabs are always present anyway so does not matter?
+mod = Module()
 ctx = Context()
 ctx.matches = r"""
 app: neovim
@@ -48,3 +49,36 @@ class UserActions:
     # def tab_duplicate():
 
     # def tab_back():
+
+    def tab_focus_most_recent():
+        actions.user.vim_normal_mode_exterm("g\t")
+
+    def tab_rename():
+        # Requires the Taboo plugin
+        actions.user.vim_normal_mode_exterm(":TabooRename ")
+
+
+@mod.action_class
+class TabActions:
+    # FIXME: TEMPORARY: Once https://github.com/talonhub/community/pull/1446 is merged, these should be removed
+    def tab_rename_wrapper(name: str):
+        """Applies formatting to tab name prior to passing to overridden tab_rename()"""
+        if len(name):
+            name = actions.user.formatted_text(name, actions.user.tab_name_format())
+        actions.app.tab_rename(name)
+
+    def tab_rename(name: str):
+        """Renames the current tab."""
+
+    def tab_name_format():
+        """Formatters for tab names in given app"""
+        return "ALL_CAPS,DASH_SEPARATED"
+
+    def tab_focus_most_recent():
+        """Jumps to the most recently viewed tab."""
+
+    def tab_move_left():
+        """Moves the current tab to the left."""
+
+    def tab_move_right():
+        """Moves the current tab to the right."""
